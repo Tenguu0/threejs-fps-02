@@ -138,6 +138,7 @@ export function createBots(scene, world, hooks) {
       detourX: 0,
       detourZ: 0,
       detourSide: 1,
+      spikeDirect: false,
       speed: BOT_SPEED * (0.92 + Math.random() * 0.16),
     };
     botIndex += 1;
@@ -340,6 +341,51 @@ export function createBots(scene, world, hooks) {
       bot.reactLeft -= dt;
     } else {
       // No target: walk the route, or hold a position and watch a lane.
+      // A dropped spike is fetched by the closest alive Vanguard bot.
+      let handled = false;
+      if (bot.team === 'vanguard' && game.spike.state === 'dropped' && !bot.hasSpike) {
+        let fetchBot = bot;
+        let fetchDist = Math.hypot(game.spike.x - pos.x, game.spike.z - pos.z);
+        for (const other of bots) {
+          if (!other.alive || other.team !== 'vanguard' || other.hasSpike) continue;
+          const d = Math.hypot(game.spike.x - other.body.position.x, game.spike.z - other.body.position.z);
+          if (d < fetchDist) { fetchDist = d; fetchBot = other; }
+        }
+        if (fetchBot === bot) {
+          handled = true;
+          const dx = game.spike.x - pos.x;
+          const dz = game.spike.z - pos.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist > 1.0) {
+            const node = nearestNode(game.spike.x, game.spike.z);
+            const nodeDist = Math.hypot(WAYPOINTS[node][0] - pos.x, WAYPOINTS[node][1] - pos.z);
+            // Hysteresis: once the bot is close to the spike or to its nearest
+            // node, it walks straight at the spike and stays on the direct leg
+            // (a plain distance test flip-flops at the boundary and the bot
+            // oscillates in place). Far away again, it goes back to waypoints.
+            if (dist > 8) bot.spikeDirect = false;
+            else if (dist <= 4 || nodeDist <= 1.0) bot.spikeDirect = true;
+            if (!bot.spikeDirect && dist > 4 && nodeDist > 1.0) {
+              // Far: follow the waypoint graph to the node nearest the spike.
+              if (!bot.path.length || bot.path[bot.path.length - 1] !== node) setRoute(bot, node);
+              const next = WAYPOINTS[bot.path[Math.min(bot.pathIndex, bot.path.length - 1)]];
+              const ndx = next[0] - pos.x;
+              const ndz = next[1] - pos.z;
+              const nlen = Math.hypot(ndx, ndz) || 1;
+              if (Math.hypot(ndx, ndz) < 0.8 && bot.pathIndex < bot.path.length - 1) bot.pathIndex += 1;
+              wishX = ndx / nlen;
+              wishZ = ndz / nlen;
+            } else {
+              // Close, or already at the nearest node: walk straight at the spike.
+              wishX = dx / dist;
+              wishZ = dz / dist;
+            }
+            moving = true;
+            bot.yaw += (Math.atan2(-wishX, -wishZ) - bot.yaw) * Math.min(1, dt * 6);
+          }
+        }
+      }
+      if (!handled) {
       const goal = goalNode(bot, game);
       if (bot.team === 'ember' && (bot.role === 'holdA' || bot.role === 'holdB')) {
         const hold = WAYPOINTS[goal];
@@ -378,6 +424,7 @@ export function createBots(scene, world, hooks) {
           bot.yaw += (Math.atan2(-wishX, -wishZ) - bot.yaw) * Math.min(1, dt * 6);
         }
       }
+      } // !handled: the fetcher above walks to the spike instead of its route.
       // Spike duties.
       if (bot.team === 'vanguard' && bot.hasSpike) {
         const site = bot.spikeSite === 'B' ? SITE_B : SITE_A;
@@ -480,6 +527,7 @@ export function createBots(scene, world, hooks) {
         bot.lastSeen = null;
         bot.channel = null;
         bot.hasSpike = false;
+        bot.spikeDirect = false;
         bot.yaw = bot.team === 'vanguard' ? Math.PI : 0;
         bot.group.rotation.set(0, bot.yaw, 0);
         bot.group.position.set(bot.body.position.x, 0, bot.body.position.z);

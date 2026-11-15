@@ -73,8 +73,9 @@ export function createWorld(scene) {
   box(6.4, 1.4, 3.2, 0, 3.7, -10.5, 'surface');
   box(3.4, 2.6, 3.0, -7.5, 1.3, -10.5, 'surface');
 
-  // A-long corner wall: the west lane turns at z = -4.
-  box(0.6, 3.4, 8, -20.4, 1.7, -4, 'surface');
+  // A-long corner wall: the west lane turns at z = -4. Kept 1.7 m clear of the
+  // lane centre (x = -22.3) so a bot that drifts off the line is not wedged.
+  box(0.6, 3.4, 8, -19.6, 1.7, -4, 'surface');
   box(4.4, 3.4, 0.6, -18.4, 1.7, -8, 'surface');
 
   // Site A cover: crates and a low wall the planter crouches behind.
@@ -93,7 +94,7 @@ export function createWorld(scene) {
   box(2.4, 2.6, 5.2, 19.4, 1.3, 4, 'surface');
   box(5.2, 2.6, 2.4, 16.4, 1.3, -2, 'surface');
   box(1.6, 1.1, 1.6, 13.2, 0.55, 6.4, 'hairline');
-  box(2.4, 2.6, 2.4, 19.8, 1.3, -5.4, 'hairline');
+  box(2.4, 2.6, 2.4, 18.6, 1.3, -5.4, 'hairline');
 
   // Mid cover: crates to stop behind on the push, and spawn cover.
   box(1.6, 1.1, 1.6, -5.4, 0.55, 9.5, 'hairline');
