@@ -11,12 +11,13 @@ export const SITE_B = { x: 17, z: -11, r: 4.5 };
 export const SPAWN_VANGUARD = { x: 0, z: 15 };
 export const SPAWN_EMBER = { x: 0, z: -15 };
 
-// Waypoint graph the bots walk: nodes are [x, z], edges are index pairs.
+// Waypoint graph the bots walk: nodes are [x, z], edges are index pairs. Lanes run
+// clear of cover: A-long at x = -22.3, B at x = 22.5, yards at z = 10.
 export const WAYPOINTS = [
   [0, 15], [-4, 12], [4, 12], [-2, 6], [2, 6], [0, 0], [0, -5],
-  [-8, -6], [8, -6], [-14, -8], [14, -8], [-17, -11], [17, -11],
-  [-21, 8], [-21, -2], [-21, -10], [21, 8], [21, 0], [21, -8],
-  [-10, 12], [10, 12], [-8, -14], [8, -14], [0, -14],
+  [-8, -6], [8, -6], [-14, -8], [15, -7], [-17, -11], [17, -11],
+  [-22.3, 8], [-22.3, -2], [-22.3, -10], [22.5, 8], [22.5, 0], [22.5, -8],
+  [-10, 10], [10, 10], [-8, -14], [8, -14], [0, -14],
   [-12, -2], [12, -2],
 ];
 export const WAY_EDGES = [
@@ -61,9 +62,10 @@ export function createWorld(scene) {
   box(48.4, 5, 0.4, 0, 2.5, -18.2, 'hairline');
   box(48.4, 5, 0.4, 0, 2.5, 18.2, 'hairline');
 
-  // Mid wall with a double-door gap (x -1.6..1.6) at z = 2.
-  box(19, 4.2, 0.6, -13.5, 2.1, 2, 'hairline');
-  box(19, 4.2, 0.6, 13.5, 2.1, 2, 'hairline');
+  // Mid wall with a double-door gap (x -4..4) at z = 2, and flank gaps at the
+  // outer lanes (x -23..-19 west, 19..23 east) so A-long and B stay connected.
+  box(15, 4.2, 0.6, -11.5, 2.1, 2, 'hairline');
+  box(15, 4.2, 0.6, 11.5, 2.1, 2, 'hairline');
   box(3.2, 1.0, 0.6, 0, 4.7, 2, 'hairline');
 
   // Central depot block north of mid: a container stack that splits the push to A and B.
@@ -87,11 +89,11 @@ export function createWorld(scene) {
   box(1.2, 1.1, 3.6, 20.4, 0.55, -11, 'hairline');
   box(2.2, 1.1, 2.2, 19.6, 0.55, -14.8, 'hairline');
 
-  // B-lane container maze (east).
+  // B-lane container maze (east). The lane itself runs at x = 22.5, clear of these.
   box(2.4, 2.6, 5.2, 19.4, 1.3, 4, 'surface');
   box(5.2, 2.6, 2.4, 16.4, 1.3, -2, 'surface');
   box(1.6, 1.1, 1.6, 13.2, 0.55, 6.4, 'hairline');
-  box(2.4, 2.6, 2.4, 21.6, 1.3, -5.4, 'hairline');
+  box(2.4, 2.6, 2.4, 19.8, 1.3, -5.4, 'hairline');
 
   // Mid cover: crates to stop behind on the push, and spawn cover.
   box(1.6, 1.1, 1.6, -5.4, 0.55, 6.4, 'hairline');

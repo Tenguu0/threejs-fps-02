@@ -618,6 +618,15 @@ window.__emberline = {
       },
       spike: { ...s.spike },
       grenades: grenadesHeld,
+      bots: bots.bots.map((bot) => ({
+        name: bot.name,
+        team: bot.team,
+        x: Math.round(bot.body.position.x * 10) / 10,
+        z: Math.round(bot.body.position.z * 10) / 10,
+        hp: Math.round(bot.hp),
+        alive: bot.alive,
+        target: bot.target ? (bot.target.kind === 'player' ? 'player' : bot.target.bot.name) : null,
+      })),
     };
   },
 };
