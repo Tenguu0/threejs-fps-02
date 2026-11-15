@@ -258,6 +258,17 @@ export function createBots(scene, world, hooks) {
   }
 
   function stepBot(bot, dt, game, now) {
+    // Outside the live round and the buy phase the living stand still (the
+    // menu and the round-end banner are not a firefight); the dead keep
+    // falling so a kill is never frozen mid-animation.
+    if (game.phase !== 'live' && game.phase !== 'buy') {
+      if (!bot.alive) {
+        bot.fall = Math.min(1, bot.fall + dt / 0.4);
+        bot.group.rotation.x = -bot.fall * 1.45;
+        bot.group.position.y = -bot.fall * 0.08;
+      }
+      return;
+    }
     if (!bot.alive) {
       bot.fall = Math.min(1, bot.fall + dt / 0.4);
       bot.group.rotation.x = -bot.fall * 1.45;
@@ -280,7 +291,9 @@ export function createBots(scene, world, hooks) {
     }
 
     // Vision, staggered so nine bots do not all raycast on the same tick.
-    if (bot.thinkAt <= 0) {
+    // Only during the live round: the buy phase is for positioning, not
+    // for shooting each other before the round starts.
+    if (game.phase === 'live' && bot.thinkAt <= 0) {
       bot.thinkAt = 0.12;
       if (bot.target && bot.target.kind === 'bot' && !bot.target.bot.alive) bot.target = null;
       if (bot.target && bot.target.kind === 'player' && !game.playerAlive) bot.target = null;

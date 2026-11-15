@@ -436,6 +436,7 @@ function step(dt) {
     }
   }
   bots.step(dt, {
+    phase: s.phase,
     playerAlive: s.player.alive,
     playerPos: body.body.position,
     playerSpeed: player.groundSpeed(),
