@@ -133,6 +133,11 @@ export function createBots(scene, world, hooks) {
       heardAt: 0,
       heardX: 0,
       heardZ: 0,
+      stuckFor: 0,
+      detourLeft: 0,
+      detourX: 0,
+      detourZ: 0,
+      detourSide: 1,
       speed: BOT_SPEED * (0.92 + Math.random() * 0.16),
     };
     botIndex += 1;
@@ -351,8 +356,12 @@ export function createBots(scene, world, hooks) {
           wishZ = ndz / len;
           moving = true;
         } else {
-          // Holding: face the lane the attackers come down.
-          const face = bot.role === 'holdA' ? Math.atan2(8 - pos.x, 6 - pos.z) : Math.atan2(-8 - pos.x, 6 - pos.z);
+          // Holding: face the lane junction the attackers come down (south-west
+          // for A, south-east for B) and sweep it slowly, so a planter at the
+          // site and a pusher down the lane both cross the vision cone.
+          const facePoint = bot.role === 'holdA' ? { x: -20, z: 2 } : { x: 20, z: 2 };
+          const face = Math.atan2(-(facePoint.x - pos.x), -(facePoint.z - pos.z))
+            + Math.sin(now * 0.6 + bot.id * 1.7) * 1.0;
           bot.yaw += (face - bot.yaw) * Math.min(1, dt * 2);
         }
       } else {
@@ -397,6 +406,28 @@ export function createBots(scene, world, hooks) {
           hooks.onSpikePickup(bot.name);
         }
       }
+    }
+
+    // Unstick: a bot that wants to move but is not getting anywhere (strafed
+    // into a crate, wedged on a corner) sidesteps around the obstacle instead
+    // of pushing at it forever, flipping side each time it gets stuck.
+    if (moving) {
+      const speedNow = Math.hypot(bot.body.velocity.x, bot.body.velocity.z);
+      if (speedNow < 0.5) bot.stuckFor += dt;
+      else bot.stuckFor = 0;
+      if (bot.detourLeft > 0) {
+        bot.detourLeft -= dt;
+        wishX = bot.detourX;
+        wishZ = bot.detourZ;
+      } else if (bot.stuckFor > 0.8) {
+        bot.detourSide = -bot.detourSide;
+        bot.detourX = -wishZ * bot.detourSide;
+        bot.detourZ = wishX * bot.detourSide;
+        bot.detourLeft = 0.7;
+        bot.stuckFor = 0;
+      }
+    } else {
+      bot.stuckFor = 0;
     }
 
     steer(bot.body, wishX, wishZ, bot.speed, 30, 8, dt);

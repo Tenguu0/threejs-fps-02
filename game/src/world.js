@@ -15,9 +15,9 @@ export const SPAWN_EMBER = { x: 0, z: -15 };
 // clear of cover: A-long at x = -22.3, B at x = 22.5, yards at z = 10.
 export const WAYPOINTS = [
   [0, 15], [-4, 12], [4, 12], [-2, 6], [2, 6], [0, 0], [0, -5],
-  [-8, -6], [8, -6], [-14, -8], [15, -7], [-17, -11], [17, -11],
+  [-10, -6], [10, -6], [-14, -8], [15, -7], [-17, -11], [17, -11],
   [-22.3, 8], [-22.3, -2], [-22.3, -10], [22.5, 8], [22.5, 0], [22.5, -8],
-  [-10, 10], [10, 10], [-8, -14], [8, -14], [0, -14],
+  [-10, 10], [10, 10], [-10, -14], [10, -14], [0, -14],
   [-12, -2], [12, -2],
 ];
 export const WAY_EDGES = [
@@ -79,14 +79,14 @@ export function createWorld(scene) {
 
   // Site A cover: crates and a low wall the planter crouches behind.
   box(3.6, 1.1, 1.2, -17, 0.55, -7.2, 'hairline');
-  box(1.2, 1.1, 3.6, -13.6, 0.55, -11, 'hairline');
+  box(1.2, 1.1, 3.6, -22, 0.55, -14.5, 'hairline');
   box(1.6, 1.1, 1.6, -20, 0.55, -13.4, 'hairline');
   box(2.2, 2.6, 1.4, -14.2, 1.3, -14.6, 'surface');
 
   // Site B cover: container stack and crates.
   box(4.6, 2.6, 2.2, 17, 1.3, -15.2, 'surface');
   box(1.6, 1.1, 1.6, 13.4, 0.55, -8.6, 'hairline');
-  box(1.2, 1.1, 3.6, 20.4, 0.55, -11, 'hairline');
+  box(1.2, 1.1, 3.6, 21, 0.55, -12, 'hairline');
   box(2.2, 1.1, 2.2, 19.6, 0.55, -14.8, 'hairline');
 
   // B-lane container maze (east). The lane itself runs at x = 22.5, clear of these.
@@ -96,8 +96,8 @@ export function createWorld(scene) {
   box(2.4, 2.6, 2.4, 19.8, 1.3, -5.4, 'hairline');
 
   // Mid cover: crates to stop behind on the push, and spawn cover.
-  box(1.6, 1.1, 1.6, -5.4, 0.55, 6.4, 'hairline');
-  box(1.6, 1.1, 1.6, 5.4, 0.55, 6.4, 'hairline');
+  box(1.6, 1.1, 1.6, -5.4, 0.55, 9.5, 'hairline');
+  box(1.6, 1.1, 1.6, 5.4, 0.55, 9.5, 'hairline');
   box(2.4, 0.9, 1.2, -2.6, 0.45, -3.4, 'hairline');
   box(2.4, 0.9, 1.2, 2.6, 0.45, -3.4, 'hairline');
   box(1.6, 1.1, 1.6, -7.6, 0.55, 13.4, 'hairline');

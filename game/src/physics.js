@@ -76,6 +76,8 @@ export function groundSpeed(body) {
 }
 
 // Cheap segment-vs-box test for line of sight: true when nothing stands between a and b.
+// t is the fraction along the segment (0 at a, 1 at b), so the slab interval starts
+// at [0, 1]; the 0.5 m margins keep cover right next to either end from blocking.
 const rayBox = new THREE.Box3();
 export function segmentBlocked(colliders, ax, ay, az, bx, by, bz) {
   const dx = bx - ax;
@@ -86,10 +88,11 @@ export function segmentBlocked(colliders, ax, ay, az, bx, by, bz) {
   const invX = 1 / (dx || 1e-9);
   const invY = 1 / (dy || 1e-9);
   const invZ = 1 / (dz || 1e-9);
+  const margin = 0.5 / length;
   for (let index = 0; index < colliders.length; index += 1) {
     const box = colliders[index];
     let tmin = 0;
-    let tmax = length;
+    let tmax = 1;
     let t1 = (box.min.x - ax) * invX;
     let t2 = (box.max.x - ax) * invX;
     if (t1 > t2) { const t = t1; t1 = t2; t2 = t; }
@@ -107,7 +110,7 @@ export function segmentBlocked(colliders, ax, ay, az, bx, by, bz) {
     if (t1 > t2) { const t = t1; t1 = t2; t2 = t; }
     tmin = Math.max(tmin, t1);
     tmax = Math.min(tmax, t2);
-    if (tmin <= tmax && tmax > 0.5 && tmin < length - 0.5) return true;
+    if (tmin <= tmax && tmax > margin && tmin < 1 - margin) return true;
   }
   return false;
 }
